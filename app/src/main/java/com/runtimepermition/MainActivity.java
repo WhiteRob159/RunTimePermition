@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -104,19 +105,24 @@ public class MainActivity extends AppCompatActivity {
                         + File.separator
                         + "LPL_Investor" + File.separator + "Statement" ,
                         "Consolidated Statement - Jul 2018.pdf");
-//                Uri path = Uri.fromFile(file);
 
-                Uri path = FileProvider.getUriForFile(MainActivity.this,
-                        BuildConfig.APPLICATION_ID + ".provider",
-                        file);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-                Log.d(TAG, "path : " + path);
-                Intent pdfOpenintent = new Intent(Intent.ACTION_VIEW);
-                pdfOpenintent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                pdfOpenintent.setDataAndType(path, "application/pdf");
-
+                    Uri path = FileProvider.getUriForFile(MainActivity.this,
+                            BuildConfig.APPLICATION_ID + ".provider",
+                            file);
+                    Log.d(TAG, "path : " + path);
+                    Intent pdfOpenintent = new Intent(Intent.ACTION_VIEW);
+                    pdfOpenintent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    pdfOpenintent.setDataAndType(path, "application/pdf");
                     startActivity(pdfOpenintent);
-
+                } else {
+                    Uri path = Uri.fromFile(file);
+                    Log.d(TAG, "path : " + path);
+                    Intent pdfOpenintent = new Intent(Intent.ACTION_VIEW);
+                    pdfOpenintent.setDataAndType(path, "application/pdf");
+                    startActivity(pdfOpenintent);
+                }
             }
         });
         mBtnReadWritePermission.setOnClickListener(new View.OnClickListener() {
