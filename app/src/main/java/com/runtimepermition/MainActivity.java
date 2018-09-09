@@ -6,8 +6,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,12 +20,14 @@ import android.widget.Toast;
 
 import com.runtimepermition.utils.RunTimePermissionUtils;
 
+import java.io.File;
+
 import static com.runtimepermition.utils.RunTimePermissionUtils.*;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private Button mBtnCamera;
+    private Button mBtnCamera, btnOpenFile;
     private Context mContext;
     private Button mBtnReadWritePermission;
 
@@ -78,6 +83,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         mContext = MainActivity.this;
         mBtnCamera = (Button) findViewById(R.id.btnCamera);
+        btnOpenFile = (Button) findViewById(R.id.btnOpenFile);
         mBtnReadWritePermission = (Button) findViewById(R.id.btnReadWritePermission);
 
 
@@ -89,6 +95,28 @@ public class MainActivity extends AppCompatActivity {
                 i.setAction(ACTION_PERMISSIONS);
                 sendBroadcast(i);
 //                cameraClick();
+            }
+        });
+        btnOpenFile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                File file = new File(Environment.getExternalStorageDirectory()
+                        + File.separator
+                        + "LPL_Investor" + File.separator + "Statement" ,
+                        "Consolidated Statement - Jul 2018.pdf");
+//                Uri path = Uri.fromFile(file);
+
+                Uri path = FileProvider.getUriForFile(MainActivity.this,
+                        BuildConfig.APPLICATION_ID + ".provider",
+                        file);
+
+                Log.d(TAG, "path : " + path);
+                Intent pdfOpenintent = new Intent(Intent.ACTION_VIEW);
+                pdfOpenintent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                pdfOpenintent.setDataAndType(path, "application/pdf");
+
+                    startActivity(pdfOpenintent);
+
             }
         });
         mBtnReadWritePermission.setOnClickListener(new View.OnClickListener() {
